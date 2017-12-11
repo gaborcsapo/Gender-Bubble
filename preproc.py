@@ -170,6 +170,18 @@ def read_in():
     lines = sys.stdin.readlines()
     return json.loads(lines[0])
 
+def combine_json(data):
+    my_dict = {}
+    for b in data:
+        if (b['domain'] in my_dict):
+            my_dict[b['domain']]['male'] += b['male']
+            my_dict[b['domain']]['female'] += b['female']
+        else:
+            my_dict[b['domain']] = {}
+            my_dict[b['domain']]['male'] = b['male']
+            my_dict[b['domain']]['female'] = b['female']
+    return [{'domain': key, 'female': value['female'], 'male': value['male']} for key, value in my_dict.items()]
+
 
 #start process
 if __name__ == '__main__':
@@ -199,20 +211,26 @@ if __name__ == '__main__':
         no_removes += 1
         data.remove(i)
     genders = [i for i in list(output) if i['male']+i['female'] > 0]
-    #{a['name']:{'male': a['male'], 'female': a['female']} for a in list(output) if a['male']+a['female'] > 0}
-
-    if (os.path.isfile('./public/img/'+id+'-stats.json')):
-        if (os.stat('./public/img/'+id+'-stats.json').st_size != 0):
-            json_data = json.load(open('./public/img/'+id+'-stats.json', 'r'))
-            json_data = genders + json_data
-            with open('./public/img/'+id+'-stats.json', 'w') as outfile:
-                json.dump(json_data, outfile)
-        else:
-            with open('./public/img/'+id+'-stats.json', 'w') as outfile:
-                json.dump(genders, outfile)
-    else:
-        with open('./public/img/'+id+'-stats.json', 'w') as outfile:
-            json.dump(genders, outfile)
+    
+    summary = genders
+    try:
+        download1 = json.load(open('/home/gc1569/Image_collector/public/img/' + id + "-stats.json", 'r'))
+        summary = combine_json(summary + download1)
+    except Exception as e: 
+        print(e)    
+    with open('./public/img/'+id+'-stats.json', 'w') as outfile:
+        json.dump(summary, outfile)
+    
+    global_sum = genders
+    try:
+        download2 = json.load(open('/home/gc1569/Image_collector/public/img/global-sum.json', 'r'))
+        global_sum = combine_json(global_sum + download2)
+    except Exception as e: 
+        print(e)
+    with open('/home/gc1569/Image_collector/public/img/global-sum.json', 'w') as outfile:
+        json.dump(global_sum, outfile)
+    
+    
     print('N.o. removes: ', no_removes, ' | N.o. Results: ', len(genders))
     output = map(align_face, list(data))
     print('Alignment done:', list(output))

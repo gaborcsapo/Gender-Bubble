@@ -90,10 +90,6 @@ app.post("/urls", function(req, res, err){
 })
 
 app.get('/stats', function (req, res) {
-    res.sendfile('./public/index.html')   
-})
-
-app.get('/sum/:user', function (req, res) {
     var username = req.params.user;
     console.log('Creating visuals...')
     var spawn = require('child_process').spawnSync,
@@ -101,5 +97,10 @@ app.get('/sum/:user', function (req, res) {
     console.log('output: ', py2.stdout.toString('utf8')) 
     console.log('stderr: ', py2.stderr.toString('utf8')) 
     console.log('Visuals created')
+    res.sendfile('./public/index.html')   
+})
+
+app.get('/sum/:user', function (req, res) {
+
     res.sendfile('./public/img/'+username+'-sum.json')
 })

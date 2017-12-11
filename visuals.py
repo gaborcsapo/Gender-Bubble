@@ -221,14 +221,16 @@ def calc_average():
 def calc_tile():
     my_path = '/home/gc1569/Image_collector/img/'+id
     files = [ join(my_path+'/processed', f) for f in listdir(my_path+'/processed') if isfile(join(my_path+'/processed', f)) and not f.endswith('.txt')]
-    if (len(files) < 100):
-        return
+    
     random.shuffle(files)
     new_im = Image.new('RGB', (2000,2000))
     index = 0
     for i in range(0,2000,200):
         for j in range(0,2000,200):
-            image = Image.open(files[index])
+            try:
+                image = Image.open(files[index])
+            except:
+                break
             width  = image.size[0]
             height = image.size[1]
 
@@ -254,44 +256,11 @@ def calc_tile():
             new_im.paste(thumb, (i,j))
             index += 1
     new_im.save('/home/gc1569/Image_collector/public/img/' + id + "-tile.jpg")
-
-def combine_json(data):
-    my_dict = {}
-    for b in data:
-        if (b['domain'] in my_dict):
-            my_dict[b['domain']]['male'] += b['male']
-            my_dict[b['domain']]['female'] += b['female']
-        else:
-            my_dict[b['domain']] = {}
-            my_dict[b['domain']]['male'] = b['male']
-            my_dict[b['domain']]['female'] = b['female']
-    return [{'domain': key, 'female': value['female'], 'male': value['male']} for key, value in my_dict.items()]
-    
-def sum_stats():
-    try:
-        data = json.load(open('/home/gc1569/Image_collector/public/img/' + id + "-stats.json", 'r'))
-    except Exception as e: 
-        print(e)
-        return
-    summary = combine_json(data)
-    with open('./public/img/'+id+'-sum.json', 'w') as outfile:
-        json.dump(summary, outfile)
-    
-    global_sum = summary
-    try:
-        data = json.load(open('/home/gc1569/Image_collector/public/img/global-sum.json', 'r'))
-        global_sum = combine_json(global_sum + data)
-    except Exception as e: 
-        print(e)
-    with open('/home/gc1569/Image_collector/public/img/global-sum.json', 'w') as outfile:
-        json.dump(global_sum, outfile)
     
     
 #start process
 if __name__ == '__main__':
     id = sys.argv[1]
     if (id is not None):
-        #calc_tile()
-        #calc_average()
-        sum_stats()
-    
+        calc_tile()
+        calc_average()
