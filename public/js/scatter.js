@@ -147,7 +147,7 @@ $.getJSON("img/"+getParameterByName('id')+"-stats.json", function(download) {
           .on("mouseout", tip.hide);
       
       objects.selectAll(".myline")
-          .data([[-1000,-1000,5000,5000]])
+          .data([[-100,-100,xMax+100,xMax+100]])
         .enter().append("line")
           .attr("x1", function(d){return x(d[0])})
           .attr("y1", function(d){return y(d[1])})

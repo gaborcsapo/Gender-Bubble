@@ -6,7 +6,7 @@ recording = true
 chrome.webRequest.onCompleted.addListener(function(req){
     if (recording){
         queue.push(encodeURIComponent(req.url))
-        if (queue.length > 150){
+        if (queue.length > 170){
             updateStorage()
             queue = []
         }
